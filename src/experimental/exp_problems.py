@@ -3,6 +3,31 @@ from pysat.card import CardEnc,EncType
 from z3 import *
 import networkx as nx
 import random
+import numpy as np
+import itertools
+
+def queen_dom_problem_exhaustive_search(n,k):
+    """ exhaustive search procedure for queen domination problem
+
+    :param n: number of rows in the chessboard
+    :param k: size of the domination set
+    :return: all domination set of size k for the nxn chessboard
+    """
+    B = np.zeros((n * n, n * n), dtype=np.bool_)
+    for i in range(n * n):
+        r, c = i // n, i % n
+        # row
+        B[i, r * n:r * n + n] = True
+        # col
+        B[i, c::n] = True
+        # diag(s)
+        D1 = [j for j in range(n * n) if r - c == ((j // n) - (j % n))]
+        D2 = [j for j in range(n * n) if r + c == ((j // n) + (j % n))]
+        D = D1 + D2
+        B[i, D] = True
+
+    all_solutions = [np.array(indices) + 1 for indices in itertools.combinations(list(range(n * n)), k) if np.all(np.any(B[indices, :], axis=0))]
+    return all_solutions
 
 def queen_dom_variant1_to_SAT(n,gamma,enc_type=EncType.seqcounter):
     """ A special variant of queen domination problem in which no two queens can attack each other
