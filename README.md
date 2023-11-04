@@ -9,3 +9,5 @@
 
 **src/experimental/***: old codes, new codes but those that have yet to be optimized or tested, etc.
 
+**docs/***: slides, documents, etc.
+
