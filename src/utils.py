@@ -16,6 +16,35 @@ def get_top_id(clauses):
     :return:maximum id
     """
     return max([max([abs(item) for item in c]) for c in clauses])
+
+def convert_to_3cnf(cnf_formula):
+    """ convert the given CNF formula into 3CNF
+
+    >>> convert_to_3cnf(cnf_formula=[[-1, 2, 3], [-2, 4, -5], [1, 2, 5, -2, 4]])
+    [[-1, 2, 3], [-2, 4, -5], [1, 2, 6], [-6, 5, 7], [-7, -2, 4]]
+
+    :param cnf_formula: CNF formula
+    :return: 3-CNF formula
+    """
+    def new_variable():
+        nonlocal var_counter
+        var_counter += 1
+        return var_counter
+
+    def split_clause(clause):
+        if len(clause) <= 3:
+            return [clause]
+        else:
+            v=new_variable()
+            return [[clause[0], clause[1], v]] + split_clause([-v]+clause[2:])
+
+    var_counter = get_top_id(cnf_formula)
+    cnf_3 = []
+    for clause in cnf_formula:
+        cnf_3 += split_clause(clause)
+
+    return cnf_3
+
 def display_chessboard(board,dark_color='yellow',light_color='white'):
     """It plots and displays the given chess board graphically
 
