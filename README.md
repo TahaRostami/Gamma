@@ -7,6 +7,8 @@
 
 **src/experiments.py**: for conducting an experiment, e.g., executing and comparing different solvers, and encoding methods.
 
+**src/baselines/***: baselines, e.g., methods described in William Herbert Bird's thesis titled 'Computational Methods for Domination Problems'
+
 **src/experimental/***: old codes, new codes but those that have yet to be optimized or tested, etc.
 
 **docs/***: slides, documents, etc.
