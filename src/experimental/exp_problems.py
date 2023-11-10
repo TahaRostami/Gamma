@@ -246,8 +246,7 @@ def naive_backtracking_based_on_Bird_thesis(n,desired_size):
         if nx.is_dominating_set(G, P):
             if len(P) < len(B):
                 B = P.copy()
-        # if we want only one solution the below line should be existed otherwise we should remove it
-        if len(B) == desired_size: return
+            return
 
         dominated_squares = set([n for p in P for n in G.neighbors(p)])
         q = len(dominated_squares)
@@ -265,5 +264,4 @@ def naive_backtracking_based_on_Bird_thesis(n,desired_size):
     FindDominatingSet(G, P, C, desired_size)
 
     return (B if len(B)<=desired_size else None)
-
 
