@@ -1,19 +1,20 @@
 import random
 from collections import deque
 
-def Algorithm32(G,desired_size=None,ordering_type=None):
+def Algorithm32(G,desired_size=None):
     """ A backtracking algorithm for finding a minimum dominating set
 
     Implementation of the backtracking algorithm for finding a minimum dominating set based on
     what is described in 3.2 Bounding With Fixed Vertex Ordering of William Herbert Bird's thesis titled
     'Computational Methods for Domination Problems'.
+    Note, "the algorithm is sensitive to the numbering of vertices in the input."
+    Please, reorder the vertices of the graph as a preprocessing step if you wish, before passing it to the algorithm.
 
     >>> print(Algorithm32([[0, 1, 2, 3, 4, 6, 8], [0, 1, 2, 3, 4, 5, 7], [0, 1, 2, 4, 5, 6, 8], [0, 1, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 7, 8], [0, 2, 3, 4, 6, 7, 8], [1, 3, 4, 5, 6, 7, 8], [0, 2, 4, 5, 6, 7, 8]], ordering_type=None))
     [5]
 
     :param G: adjacency list representation of graph
     :param desired_size: if G has a dominating set of size at most desired_size
-    :param ordering_type: None, 'bfs', 'max', 'min', 'random'
     :return: a minimum dominating set; indices are started from 1
     """
 
@@ -86,51 +87,8 @@ def Algorithm32(G,desired_size=None,ordering_type=None):
             j=F.pop()
             self_C[j]=True
 
-    def _renumber_graph(G, ordering_type=None):
-        def _BFS(G):
-            num_vertices = len(G)
-            visited = [False] * num_vertices
-            result = []
-            queue = deque()
-            start_vertex = 0
-            queue.append(start_vertex)
-            visited[start_vertex] = True
-            while queue:
-                vertex = queue.popleft()
-                result.append(vertex)
-                for neighbor in G[vertex]:
-                    if not visited[neighbor]:
-                        queue.append(neighbor)
-                        visited[neighbor] = True
-            return result
-
-        ordered = [i for i in range(len(G))]
-        if ordering_type == 'random':
-            random.shuffle(ordered)
-        elif ordering_type == 'bfs':
-            ordered = _BFS(G)
-        elif ordering_type == 'max' or ordering_type == 'min':
-            degrees = [len(v) for v in G]
-            ordered = sorted(range(len(degrees)), key=degrees.__getitem__)
-            if ordering_type == 'max':
-                ordered.reverse()
-
-        num_vertices = len(G)
-        # Create a mapping from old vertex IDs to new vertex IDs
-        vertex_mapping = {old_id: new_id for new_id, old_id in enumerate(ordered)}
-
-        # Create the renumbered graph
-        renumbered_graph = [[] for _ in range(num_vertices)]
-        for old_id in range(num_vertices):
-            for neighbor in G[old_id]:
-                renumbered_graph[vertex_mapping[old_id]].append(vertex_mapping[neighbor])
-
-        # Create a reverse mapping function
-        reverse_mapping = {new_id: old_id for old_id, new_id in vertex_mapping.items()}
-
-        return renumbered_graph, reverse_mapping
     # G: adj list representation of the graph
-    self_G,reverse_mapping= _renumber_graph(G, ordering_type=ordering_type)
+    self_G=G
     # ∆: computing maximum degree of the graph G
     self_delta = max([len(v) for v in self_G])
     # The partial dominating set P is represented by array-based list
@@ -148,8 +106,9 @@ def Algorithm32(G,desired_size=None,ordering_type=None):
     # The initial call
     _find_dominating_set(P, NP, size_of_NP, desired_size, 0)
     # For numbering consistency
-    self_B=[reverse_mapping[item]+1 for item in self_B]
+    self_B=[item+1 for item in self_B]
     return self_B
+
 
 
 
