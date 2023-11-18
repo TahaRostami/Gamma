@@ -15,3 +15,4 @@
 
 **docs/***: slides, documents, etc.
 
+**res/***: evaluation, experiments' results, etc.
