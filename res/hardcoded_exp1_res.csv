@@ -1,0 +1,13 @@
+algo,n,gamma,bounding_strategy_type,tree_size,time_seconds
+naive_backtracking_based_on_Bird_thesis,10,4,custom_bounding_strategy,331218,31
+naive_backtracking_based_on_Bird_thesis,10,5,custom_bounding_strategy,570407,58
+naive_backtracking_based_on_Bird_thesis,11,4,custom_bounding_strategy,150437,14
+naive_backtracking_based_on_Bird_thesis 11 5 custom_bounding_strategy 1834480 67
+naive_backtracking_based_on_Bird_thesis,12,5,custom_bounding_strategy,15580478,809
+naive_backtracking_based_on_Bird_thesis,12,6,custom_bounding_strategy,19706491,971
+Algorithm32,10,4,bounding_strategy_3_1,2719443,22
+Algorithm32,10,5,bounding_strategy_3_1,12336135,88
+Algorithm32,11,4,bounding_strategy_3_1,4529864,47
+Algorithm32,11,5,bounding_strategy_3_1,68919431,289
+Algorithm32,12,5,bounding_strategy_3_1,148447295,652
+Algorithm32,12,6,bounding_strategy_3_1,298853678,1193
