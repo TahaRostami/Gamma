@@ -132,6 +132,7 @@ def Algorithm32(args):
     print(Algorithm32.__name__,n, desired_size, bounding_strategy_enb,num_all_call,(end_time - start_time).seconds)
     return self_B,num_all_call,(end_time - start_time)
 def naive_backtracking_based_on_Bird_thesis(args):
+    # bounding_strategy_enb=0 disable, bounding_strategy_enb=1 basic bounding strategy, bounding_strategy_enb=2 custom bounding strategy
     n, desired_size, bounding_strategy_enb=args
     V = [i + 1 for i in range(n * n)]
     G = nx.Graph()
@@ -200,27 +201,26 @@ def naive_backtracking_based_on_Bird_thesis(args):
     return (B if len(B)<=desired_size else None),num_calls,(end_time - start_time)
 
 
+def wrapper(args):
+    return args[0](args[1:])
 if __name__=='__main__':
 
-    # configs=[{'algo':naive_backtracking_based_on_Bird_thesis,'params':[(8,4,0),(8,4,1),(8,5,0),(8,5,1),(9,4,0),(9,4,1),(9,5,0),(9,5,1),(10,4,0),(10,4,1),(10,5,0),(10,5,1),(11,4,0),(11,4,1),(11,5,0),(11,5,1),(12,5,0),(12,5,1),(12,6,0),(12,6,1)],'results':[]},
-    #  {'algo': naive_backtracking_based_on_Bird_thesis, 'params': [(8,4,0),(8,4,1),(8,4,2),(8,5,0),(8,5,1),(8,5,2),(9,4,0),(9,4,1),(9,4,2),(9,5,0),(9,5,1),(9,5,2),(10,4,0),(10,4,1),(10,4,2),(10,5,0),(10,5,1),(10,5,2),(11,4,0),(11,4,1),(11,4,2),(11,5,0),(11,5,1),(10,5,2),(12,5,0),(12,5,1),(12,5,2),(12,6,0),(12,6,1),(12,6,2)],'results':[]}
-    #  ]
-
-    configs=[
-     {'algo': naive_backtracking_based_on_Bird_thesis, 'params': [(10,4,2),(10,5,2),(11,4,2),(10,5,2),(12,5,2),(12,6,2)],'results':[]},
-     {'algo': naive_backtracking_based_on_Bird_thesis, 'params': [(10, 4, 1), (10, 5, 1), (11, 4, 1), (11, 5, 1), (12, 5, 1), (12, 6, 1)], 'results': []}
+    configs=[{'algo':Algorithm32,'params':[[8,4,0],[8,4,1],[8,5,0],[8,5,1],[9,4,0],[9,4,1],[9,5,0],[9,5,1],[10,4,0],[10,4,1],[10,5,0],[10,5,1],[11,4,0],
+                                           [11,4,1],[11,5,0],[11,5,1],[12,5,0],[12,5,1],[12,6,0],[12,6,1]]},
+     {'algo': naive_backtracking_based_on_Bird_thesis, 'params': [[8,4,0],[8,4,1],[8,4,2],[8,5,0],[8,5,1],[8,5,2],
+                                                                  [9,4,0],[9,4,1],[9,4,2],[9,5,0],[9,5,1],[9,5,2],[10,4,0],[10,4,1],[10,4,2],[10,5,0],[10,5,1],[10,5,2],[11,4,0],[11,4,1],[11,4,2],[11,5,0],[11,5,1],[10,5,2],[12,5,0],[12,5,1],[12,5,2],[12,6,0],[12,6,1],[12,6,2]]}
      ]
+
+    configs=[[config['algo']]+params for config in configs for params in config['params']]
 
     data={'algo':[],'n':[],'gamma':[],'bounding_strategy_type':[],'tree_size':[],'time':[]}
     with Pool(max(1,os.cpu_count()-1)) as p:
-        for config in configs:
-           config['results']=p.map(config['algo'], config['params'])
-           for x in range(len(config['params'])):
-              data['algo'].append(config['algo'].__name__)
-              data['n'].append(config['params'][x][0])
-              data['gamma'].append( config['params'][x][1])
-              data['bounding_strategy_type'].append(config['params'][x][2])
-              data['tree_size'].append(config['results'][x][1])
-              data['time'].append(config['results'][x][2].seconds)
-           print(config['algo'])
+           results=p.map(wrapper, configs)
+           for x in range(len(configs)):
+              data['algo'].append(configs[x][0].__name__)
+              data['n'].append(configs[x][1])
+              data['gamma'].append(configs[x][2])
+              data['bounding_strategy_type'].append(configs[x][3])
+              data['tree_size'].append(results[x][1])
+              data['time'].append(results[x][2].seconds)
     pd.DataFrame(data).to_csv("exp_res.csv",index=False)
