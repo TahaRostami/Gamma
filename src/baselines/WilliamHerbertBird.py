@@ -27,6 +27,7 @@ def Algorithm32(G,desired_size=None):
         if size_of_NP==n:
             if len(P)<len(self_B):
                 self_B=P.copy()
+            return
         while i<len(NP) and NP[i]:
             i+=1
         k= len(P) + (n-size_of_NP)//(self_delta+1)
