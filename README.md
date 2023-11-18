@@ -11,5 +11,7 @@
 
 **src/experimental/***: old codes, new codes but those that have yet to be optimized or tested, etc.
 
+**src/hardcoded/***: non modular code written for prototyping, quick experiments, etc.. They might be removed in the future and/or will merge with other codes
+
 **docs/***: slides, documents, etc.
 
