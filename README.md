@@ -1,5 +1,6 @@
 # Gamma
 
+**src/cpp/***: C++ code.
 
 **src/utils.py**: utilities, e.g., for drawing a graphical chessboard, etc. that others might use them.
 
