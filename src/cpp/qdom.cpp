@@ -92,26 +92,63 @@ void seqcounter_encode_atleastN(int& top_id, std::vector<std::vector<int>>& clse
     seqcounter_encode_atmostN(top_id, clset, ps, nrhs);
 }
 
+/*got from https://www.geeksforgeeks.org/make-combinations-size-k/
+  and a little bit has been modified
+*/
+
+
+void makeCombiUtil(std::vector<std::vector<int>>& ans, std::vector<int>& tmp, std::vector<int> in_lst, int left, int k)
+{
+    // Pushing this vector to a vector of vector
+    if (k == 0) {
+        ans.push_back(tmp);
+        return;
+    }
+
+    // i iterates from left to n. First time
+    // left will be 0
+    for (int i = left; i <= in_lst.size() - k; ++i)
+    {
+        tmp.push_back(in_lst[i]);
+        makeCombiUtil(ans, tmp, in_lst, i + 1, k - 1);
+
+        // Popping out last inserted element
+        // from the vector
+        tmp.pop_back();
+    }
+}
+
+std::vector<std::vector<int>> makeCombi(std::vector<int> in_lst, int k)
+{
+    std::vector<std::vector<int>> ans;
+    std::vector<int> tmp;
+    makeCombiUtil(ans, tmp, in_lst, 0, k); // Start from index 0
+    return ans;
+}
 
 /* 
    This code, encodes the queen domination problem into SAT.
 */
 void encode_qdom(std::vector<std::vector<int>>& clset, int gamma) {
 
+    std::vector<int> vars;
+    for (int i = 0; i < n * n; i++)vars.push_back((i + 1));
+
+    // basic encoding
     for (int i = 0; i < n * n; i++) {
         std::set<int> N;
-        N.insert(i+1);
+        N.insert(vars[i]);
 
         int r = i / n;
         int c = i % n;
 
         for (int j = 0; j < n * n; j++) {
             if (j < n) {
-                N.insert(r * n + j+1);
-                N.insert(j * n + c+1);
+                N.insert(vars[r * n + j]);
+                N.insert(vars[j * n + c]);
             }
             if ((r - c) == ((j / n) - (j % n)) || (r + c) == ((j / n) + (j % n))) {
-                N.insert(j+1);
+                N.insert(vars[j]);
             }
         }
 
@@ -122,12 +159,25 @@ void encode_qdom(std::vector<std::vector<int>>& clset, int gamma) {
         clset.push_back(clause);
     }
 
+    // encoding the first lemma
+    for (int r = 0; r < n; r++) {
+        std::vector<int> curr_row;
+        std::vector<int> curr_col;
+        for (int c = 0; c < n; c++) {
+            curr_row.push_back(vars[r * n + c]);
+            curr_col.push_back(vars[c * n + r]);
+        }
+        std::vector<int> clause_row;
+        for (const auto& comb : makeCombi(curr_row, 2 * gamma - n + 2 + 1)) {for (int item : comb) {clause_row.push_back(-item);}}
+        clset.push_back(clause_row);
+
+        std::vector<int> clause_col;
+        for (const auto& comb : makeCombi(curr_col, 2 * gamma - n + 2 + 1)) { for (int item : comb) { clause_col.push_back(-item); } }
+        clset.push_back(clause_col);
+    }
+
+    // encoding the main cardinality constraints
     int top_id = n * n;
-
-    std::vector<int> vars;
-    for (int i = 0; i < n * n; i++)
-        vars.push_back((i + 1));
-
     seqcounter_encode_atleastN(top_id, clset, vars, gamma);
     seqcounter_encode_atmostN(top_id, clset, vars, gamma);
 
@@ -145,7 +195,7 @@ int main (int argc, char** argv) {
 
     //solver.set("log",0);
     //solver.set("chrono",0);
-    //solver.set("inprocessing",1);
+    solver.set("inprocessing",0);
 
     std::vector<std::vector<int>> clset;
     encode_qdom(clset,gamma);
