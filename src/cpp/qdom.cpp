@@ -262,6 +262,68 @@ bool dom_degree_bounding_strategy(std::vector<int> vars_indices) {
     else { return false; }
 }
 
+bool max_dom_degree_bounding_strategy(std::vector<int> vars_indices) {
+    std::set<int> dominated_squares;
+    for (auto q : vars_indices) {//vars_indices start from 0 
+        std::set<int> tempUnion;
+        std::set_union(dominated_squares.begin(), dominated_squares.end(), qgraph[q].begin(), qgraph[q].end(), std::inserter(tempUnion, tempUnion.begin()));
+        dominated_squares.swap(tempUnion);
+    }
+
+    std::set<int> undominated_squares;
+    for (int i = 0; i < n * n; i++)
+    {
+        if (dominated_squares.find(i+1) == dominated_squares.end()) {
+            undominated_squares.insert(i+1);
+            //std::cout << "(" << i << ") ";
+        }
+    }
+    //std::cout << "\n" << dominated_squares.size()<<" "<<undominated_squares.size();
+
+
+    std::vector<int> dom_degrees;
+    for (int i=0; i<n*n;i++)
+    {
+        int cnt = 0;
+        for (const auto& elem : qgraph[i]) {
+            if (dominated_squares.find(elem) == dominated_squares.end()) {
+                cnt++;
+            }
+        }
+        dom_degrees.push_back(cnt);
+        //std::cout << "(" << i <<", " << cnt << ") ";
+    }
+
+    std::priority_queue<int, std::vector<int>, std::greater<int>> MDD;
+    for(auto undom_idx: undominated_squares)
+    {
+        int _max = 0;
+        for (const auto& elem : qgraph[undom_idx-1]) { 
+            if (std::find(vars_indices.begin(), vars_indices.end(), elem) == vars_indices.end()) {
+                if (dom_degrees[elem-1] > _max)
+                    _max = dom_degrees[elem-1];
+            }
+        }
+        MDD.push(_max);
+       // std::cout << "("<< undom_idx<<", " << _max << ") ";
+    }
+
+    int i = 1;
+    int count = 0;
+    int k = undominated_squares.size();
+    while (!MDD.empty() && i<=k && vars_indices.size() + count <= gamma) {
+        //std::cout << MDD.top() << " ";
+        count += 1;
+        i += MDD.top();
+        MDD.pop();
+    }
+
+    if (vars_indices.size() + count > gamma) {
+        return true;
+    }
+    else { return false; }
+}
+
 class QDSolver : CaDiCaL::ExternalPropagator {
     CaDiCaL::Solver* solver;
     std::vector<std::vector<int>> new_clauses;
@@ -334,7 +396,7 @@ public:
         std::vector<int> vars_indices;
         auto curr_trail = current_trail.back();
         for (int i = 0; i < curr_trail.size(); i++)if (curr_trail[i] > 0)vars_indices.push_back(i);
-        if (dom_degree_bounding_strategy(vars_indices))
+        if (max_dom_degree_bounding_strategy(vars_indices))// //dom_degree_bounding_strategy(vars_indices)
         {
             counter_true++;
             //std::cout << counter_true << "\n";
@@ -382,7 +444,15 @@ int main (int argc, char** argv) {
     if (argc >= 3) {n = std::atoi(argv[1]);gamma = std::atoi(argv[2]);}
 
     queen_graph();
-
+/*
+    for (auto x : qgraph)
+    {
+        for (auto y : x) {
+            std::cout << y << " ";
+        }
+        std::cout << "\n";
+    }
+*/
 
     auto start = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(start);
