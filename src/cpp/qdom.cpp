@@ -14,12 +14,13 @@
 #include <unordered_map>
 #include <chrono>
 #include <ctime>
+#include <queue>
 
 static int n = 3;
 static int gamma = 1;
 
 static CaDiCaL::Solver solver;
-
+static std::vector<std::set<int>> qgraph;
 
 /* 
    This implementation follows Donald Knuth's irredundant variant
@@ -160,6 +161,7 @@ void encode_qdom(std::vector<std::vector<int>>& clset, int gamma) {
     }
 
     // encoding the first lemma
+    ///*
     for (int r = 0; r < n; r++) {
         std::vector<int> curr_row;
         std::vector<int> curr_col;
@@ -175,6 +177,7 @@ void encode_qdom(std::vector<std::vector<int>>& clset, int gamma) {
         for (const auto& comb : makeCombi(curr_col, 2 * gamma - n + 2 + 1)) { for (int item : comb) { clause_col.push_back(-item); } }
         clset.push_back(clause_col);
     }
+    //*/
 
     // encoding the main cardinality constraints
     int top_id = n * n;
@@ -184,9 +187,202 @@ void encode_qdom(std::vector<std::vector<int>>& clset, int gamma) {
 }
 
 
+void add_formula_to_SAT_solver(CaDiCaL::Solver& solver, std::vector<std::vector<int>>& clset) {
+    for (auto clause : clset) {
+        for (auto item : clause) {
+            solver.add(item);
+        }
+        solver.add(0);
+    }
+}
+
+
+void create_qdom_instance(CaDiCaL::Solver& solver,int n, int gamma) {
+    std::vector<std::vector<int>> clset;
+    encode_qdom(clset, gamma);
+    add_formula_to_SAT_solver(solver, clset);
+}
+
+void queen_graph() {
+    std::vector<int> vars;
+    for (int i = 0; i < n * n; i++)vars.push_back((i + 1));
+
+    // basic encoding
+    for (int i = 0; i < n * n; i++) {
+        std::set<int> N;
+        N.insert(vars[i]);
+
+        int r = i / n;
+        int c = i % n;
+
+        for (int j = 0; j < n * n; j++) {
+            if (j < n) {
+                N.insert(vars[r * n + j]);
+                N.insert(vars[j * n + c]);
+            }
+            if ((r - c) == ((j / n) - (j % n)) || (r + c) == ((j / n) + (j % n))) {
+                N.insert(vars[j]);
+            }
+        }
+        qgraph.push_back(N);
+    }
+}
+
+bool dom_degree_bounding_strategy(std::vector<int> vars_indices) {
+    std::set<int> dominated_squares;
+    for (auto q : vars_indices) {
+        std::set<int> tempUnion;
+        std::set_union(dominated_squares.begin(), dominated_squares.end(), qgraph[q].begin(), qgraph[q].end(), std::inserter(tempUnion, tempUnion.begin()));
+        dominated_squares.swap(tempUnion);
+    }
+
+    std::priority_queue<int> dom_degree;
+    for (int i = 0; i < n * n;i++) {
+        int cnt = 0;
+        for (const auto& elem : qgraph[i]) {
+            if (dominated_squares.find(elem) == dominated_squares.end()) {
+                cnt++;
+            }
+        }
+        dom_degree.push(cnt); 
+    }
+    // && pq.top() > condition_value
+    int k = n * n - dominated_squares.size();
+    int q = 0;
+    int sum_q = 0;
+    while (!dom_degree.empty() && sum_q<k && vars_indices.size() + q <= gamma) {
+        sum_q += dom_degree.top();
+        dom_degree.pop();
+        q++;
+    }
+    //std::cout << vars.size() + q << "\n";
+    if (vars_indices.size() + q > gamma) {
+        return true;
+    }
+    else { return false; }
+}
+
+class QDSolver : CaDiCaL::ExternalPropagator {
+    CaDiCaL::Solver* solver;
+    std::vector<std::vector<int>> new_clauses;
+    std::deque<std::vector<int>> current_trail;
+    int counter_true = 0;
+    int counter_false = 0;
+public:
+    QDSolver(CaDiCaL::Solver* s) : solver(s) {
+        solver->connect_external_propagator(this);
+        for (int i = 0; i < n * n; i++)
+            solver->add_observed_var(i + 1);
+
+        // The root-level of the trail is always there
+        current_trail.push_back(std::vector<int>());
+    }
+
+    ~QDSolver() {
+        std::cout <<"..... " << counter_true << " .....\n";
+        std::cout << "..... " << counter_false << " .....\n";
+        std::cout << "..... " << counter_true*1.0/(counter_true+ counter_false) << " .....\n";
+        solver->disconnect_external_propagator();
+    }
+
+    void notify_assignment(int lit, bool is_fixed) {
+        if (is_fixed) {
+            current_trail.front().push_back(lit);
+        }
+        else {
+            current_trail.back().push_back(lit);
+        }
+
+        /*
+        auto curr_trail = current_trail.back();     
+        for (int i = 0; i < n * n; i++)
+        {
+            for (int j = 0; j < n * n; j++)
+            {
+                auto it = std::find(curr_trail.begin(), curr_trail.end(), i*n+j+1);
+                if (it != curr_trail.end()) {
+                    std::cout << "Q ";
+                }
+                else {
+                    std::cout << "- ";
+                }
+            }
+            std::cout << std::endl;
+
+        }
+        std::cout<< lit <<" ----------------------------------------------------------" << std::endl;
+        */
+
+    }
+
+    void notify_new_decision_level() {
+        current_trail.push_back(std::vector<int>());
+    }
+
+    void notify_backtrack(size_t new_level) {
+        while (current_trail.size() > new_level + 1) {
+            current_trail.pop_back();
+        }
+    }
+
+    bool cb_check_found_model(const std::vector<int>& model) {
+        (void)model;
+        return true;
+    }
+
+    bool cb_has_external_clause() {
+        std::vector<int> vars_indices;
+        auto curr_trail = current_trail.back();
+        for (int i = 0; i < curr_trail.size(); i++)if (curr_trail[i] > 0)vars_indices.push_back(i);
+        if (dom_degree_bounding_strategy(vars_indices))
+        {
+            counter_true++;
+            //std::cout << counter_true << "\n";
+            std::vector<int> clause;
+            for (auto x : curr_trail)
+            {
+                clause.push_back(-x);
+                
+            }
+            new_clauses.push_back(clause);
+        }
+        else { 
+            counter_false++; 
+        }
+        
+        return (!new_clauses.empty());
+    }
+
+    int cb_add_external_clause_lit() {
+        if (new_clauses.empty()) return 0;
+        else {
+            assert(!new_clauses.empty());
+            size_t clause_idx = new_clauses.size() - 1;
+            if (new_clauses[clause_idx].empty()) {
+                new_clauses.pop_back();
+                return 0;
+            }
+
+            int lit = new_clauses[clause_idx].back();
+            new_clauses[clause_idx].pop_back();
+            return lit;
+        }
+    }
+
+    int cb_decide() { return 0; }
+    int cb_propagate() { return 0; }
+    int cb_add_reason_clause_lit(int plit) {
+        (void)plit;
+        return 0;
+    };
+};
+
 int main (int argc, char** argv) {
 
     if (argc >= 3) {n = std::atoi(argv[1]);gamma = std::atoi(argv[2]);}
+
+    queen_graph();
+
 
     auto start = std::chrono::system_clock::now();
     std::time_t currentTime = std::chrono::system_clock::to_time_t(start);
@@ -196,17 +392,8 @@ int main (int argc, char** argv) {
     //solver.set("log",0);
     //solver.set("chrono",0);
     solver.set("inprocessing",0);
-
-    std::vector<std::vector<int>> clset;
-    encode_qdom(clset,gamma);
-    for (auto clause: clset) {
-        for (auto item : clause) {
-            solver.add(item);
-            //std::cout << item<<" ";
-        }
-        //std::cout << std::endl;
-        solver.add(0);
-    }
+    create_qdom_instance(solver, n, gamma);
+    QDSolver qds(&solver);
 
     int res = solver.solve();
     if (res == 10) {
