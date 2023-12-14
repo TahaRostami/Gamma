@@ -21,7 +21,6 @@ static std::vector<std::vector<int>> queen_graph_adj_lst(int n) {
 
     for (int i = 0; i < n * n; i++) {
         std::set<int> N;
-        //N.insert(i);
 
         int r = i / n;
         int c = i % n;
@@ -209,11 +208,9 @@ public:
     //}
 };
 
-//......
-
 class VertexNode;
 static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bool>& P, std::vector<bool>& C,
-    std::vector<bool>& B, int desired_size, int& size_B, std::vector<bool>& N_P, int& size_N_P, int& size_P);
+    std::vector<bool>& B, int desired_size, int& size_B, std::vector<int>& N_P, int& size_N_P, int& size_P);
 
 class CandidateDegreeNode {
 public:
@@ -465,7 +462,7 @@ static CandidateDegreePriorityQueue CDPQ;
 
 static bool add_vertex(std::vector<std::vector<int>>& G, std::vector<bool>& P,
     std::vector<bool>& C, std::vector<bool>& B,int desired_size, std::stack<int>& F,int v_j
-    ,int& size_B, std::vector<bool>& N_P, int& size_N_P, int& size_P)
+    ,int& size_B, std::vector<int>& N_P, int& size_N_P, int& size_P)
 {
     if (C[v_j]==false){ return false;}
     F.push(v_j);
@@ -474,12 +471,11 @@ static bool add_vertex(std::vector<std::vector<int>>& G, std::vector<bool>& P,
     DDMS.remove_candidate(v_j);
     bool force_stop = false;
 
-    auto NeighbourList = std::vector<int>(G[v_j]);
-    NeighbourList.push_back(v_j);
+    auto NeighbourList = G[v_j];
 
     for (auto v_k : NeighbourList)
     {
-        if (N_P[v_k]==false)
+        if (CDPQ.is_dominated(v_k)==false)
         {
             CDPQ.dominate(v_k);
         }
@@ -488,27 +484,38 @@ static bool add_vertex(std::vector<std::vector<int>>& G, std::vector<bool>& P,
         {
             force_stop = true;
         }
-        if (N_P[v_j] == false)
+        if (N_P[v_j] == 0)
         {
             DDMS.decrement(v_k,C);
         }
     }
 
- 
-    //This part is hard coded(and is not efficient) for debuging purposes
-    auto tmp = std::vector<bool>(N_P);
 
-    P[v_j] = true; size_P++; N_P[v_j]=true;
+    //unidom had bug, the following lines try to fix it
+    P[v_j] = true; size_P++; N_P[v_j]++; if(N_P[v_j]==1){ size_N_P++; }
 
-    for (auto x : G[v_j]) {if (N_P[x] == false){ N_P[x] = true;}}
-    size_N_P = 0; for (auto x : N_P) if (x) size_N_P++;
+    for (auto x : G[v_j]) 
+    {
+        N_P[x]++;
+        if (N_P[x] == 1)
+        { 
+            size_N_P++;
+        }
+    }
     
 
     find_dominating_set(G, P, C, B, desired_size,size_B,N_P,size_N_P,size_P);
     
-    N_P = tmp;
-    P[v_j] = false; size_P--;
-    size_N_P = 0; for (auto x : N_P) if (x) size_N_P++;
+    //unidom had bug, the following lines try to fix it
+    P[v_j] = false; size_P--; N_P[v_j]--; if (N_P[v_j] == 0) { size_N_P--; }
+    for (auto x : G[v_j])
+    {
+        N_P[x]--;
+        if (N_P[x] == 0)
+        {
+            size_N_P--;
+        }
+    }
 
     return force_stop;
 
@@ -516,22 +523,21 @@ static bool add_vertex(std::vector<std::vector<int>>& G, std::vector<bool>& P,
 
 
 static void restore_candidate(std::vector<std::vector<int>>& G, std::vector<bool>& P,
-    std::vector<bool>& C, std::vector<bool>& B, int desired_size, int v_j, std::vector<bool>& N_P) {
+    std::vector<bool>& C, std::vector<bool>& B, int desired_size, int v_j, std::vector<int>& N_P) {
     
     C[v_j] = true;
     DDMS.add_candidate(v_j);
 
-    auto NeighbourList = std::vector<int>(G[v_j]);
-    NeighbourList.push_back(v_j);
+    auto NeighbourList = G[v_j];
 
     for (auto v_k : NeighbourList)
     {
-        if (N_P[v_k] == false)//it might have bug or might not , CDPQ.is_dominated(v_k) == false? CDPQ.is_dominated(v_k) == true
+        if (N_P[v_k] == 0)//it might have bug or might not , CDPQ.is_dominated(v_k) == false? CDPQ.is_dominated(v_k) == true
         {
             CDPQ.undominate(v_k);
         }
         CDPQ.increment(v_k,C);
-        if (N_P[v_j] == false)//it might have bug or might not , CDPQ.is_dominated(v_k) == false? CDPQ.is_dominated(v_k) == true
+        if (N_P[v_j] == 0)//it might have bug or might not , CDPQ.is_dominated(v_k) == false? CDPQ.is_dominated(v_k) == true
         {
             DDMS.increment(v_k, C);
         }
@@ -540,7 +546,7 @@ static void restore_candidate(std::vector<std::vector<int>>& G, std::vector<bool
 }
 
 static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bool>& P, std::vector<bool>& C,
-    std::vector<bool>& B, int desired_size, int& size_B, std::vector<bool>& N_P, int& size_N_P, int& size_P) {
+    std::vector<bool>& B, int desired_size, int& size_B, std::vector<int>& N_P, int& size_N_P, int& size_P) {
 
     if (size_N_P ==G.size())
     {
@@ -553,14 +559,15 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
     }
     int k=DDMS.min_to_dominate(G.size()- size_N_P) + size_P;
     if (k >= size_B or k > desired_size){return;}
-    auto v = CDPQ.get_max_undominated(); //v ← ChooseNextVertex(G, P, C)
-    
+    auto v = CDPQ.get_max_undominated();
     if (v < 0) return;
 
-    auto NeighbourList = std::vector<int>(G[v]);
-    NeighbourList.push_back(v);
+    auto NeighbourList = G[v];
 
-    //TODO:Sort NeighbourList by domination degree
+    //should be replaced with bucket sort
+    std::sort(NeighbourList.begin(), NeighbourList.end(), [](int v1, int v2) {return DDMS.domination_degree(v1) < DDMS.domination_degree(v2);});
+   
+
     std::stack<int> F;
     for (auto v_j : NeighbourList)
     {
@@ -583,19 +590,23 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
 int main() {
     int n = 3; int delta = 4 * n - 3;
     auto G = queen_graph_adj_lst(n);
+    int desired_size = G.size();
+
     auto C = std::vector<bool>(G.size(),true);
     auto P = std::vector<bool>(G.size(), false);
     auto B = std::vector<bool>(G.size(), true);
+    auto N_P = std::vector<int>(G.size(), 0);//# queens that attack the square
+    int size_N_P = 0;
+    int size_P = 0;
+    int size_B = B.size();
+
     DDMS = DominationDegreeMultiset(G, delta);
     CDPQ = CandidateDegreePriorityQueue(G, delta);
 
+    //simplifying NeighbourList lookup
+    for (int i = 0; i < G.size(); i++) G[i].push_back(i);
 
-    int size_B = B.size();
-    auto N_P= std::vector<bool>(G.size(), false);
-    int size_N_P = 0;
-    int size_P = 0;
-
-    find_dominating_set(G, P, C, B, G.size(),size_B,N_P,size_N_P,size_P);
+    find_dominating_set(G, P, C, B, desired_size,size_B,N_P,size_N_P,size_P);
 
     for (int r = 0; r < n; r++)
 	{
