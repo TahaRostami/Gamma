@@ -16,6 +16,9 @@
 
 
 
+static int calls = 0;
+static int b2 = 0;
+
 static std::vector<std::vector<int>> queen_graph_adj_lst(int n) {
     std::vector<std::vector<int>> qgraph;
 
@@ -282,7 +285,6 @@ private:
     CandidateDegreeNode* sentinel;
 
 public:
-    int cnt_dominated = 0;
 
     CandidateDegreePriorityQueue() {}
 
@@ -315,7 +317,6 @@ public:
     }
 
     void dominate(int v_i) {
-        cnt_dominated++;
         auto vertex_node = VertexNodes[v_i];
         vertex_node->is_dominated = true;
         vertex_node->degree_node->undominated_count--;
@@ -327,9 +328,8 @@ public:
     }
 
     void undominate(int v_i) {
-        cnt_dominated--;
         auto vertex_node = VertexNodes[v_i];
-        vertex_node->is_dominated = true;
+        vertex_node->is_dominated = false;//unidom had bug, this line fixes it
         vertex_node->degree_node->undominated_count++;
         splice_in(vertex_node);
     }
@@ -343,10 +343,6 @@ public:
         auto old_degree_node = vertex_node->degree_node;
         auto old_deg = old_degree_node->candidate_degree;//undom had bug, this line fixes it
         auto new_deg = old_deg + 1;
-        //if (new_deg >= DegreeNodes.size())
-        //{
-        //    new_deg = DegreeNodes.size() - 1;
-        //}
         auto new_degree_node = DegreeNodes[new_deg];
         auto old_count = old_degree_node->count;
         auto new_count = new_degree_node->count;
@@ -548,6 +544,8 @@ static void restore_candidate(std::vector<std::vector<int>>& G, std::vector<bool
 static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bool>& P, std::vector<bool>& C,
     std::vector<bool>& B, int desired_size, int& size_B, std::vector<int>& N_P, int& size_N_P, int& size_P) {
 
+    calls++;
+
     if (size_N_P ==G.size())
     {
         if (size_P < size_B)
@@ -558,7 +556,7 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
         return;
     }
     int k=DDMS.min_to_dominate(G.size()- size_N_P) + size_P;
-    if (k >= size_B or k > desired_size){return;}
+    if (k >= size_B or k > desired_size) { b2++; return; }
     auto v = CDPQ.get_max_undominated();
     if (v < 0) return;
 
@@ -592,9 +590,9 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
 }
 
 int main() {
-    int n = 10; int delta = 4 * n - 3;
+    int n = 8; int delta = 4 * n - 3;
     auto G = queen_graph_adj_lst(n);
-    int desired_size = 5;// G.size();
+    int desired_size = G.size();
 
     auto C = std::vector<bool>(G.size(),true);
     auto P = std::vector<bool>(G.size(), false);
@@ -620,6 +618,8 @@ int main() {
 		}
 		std::cout << "\n";
 	}
+
+    std::cout<< "tree_size: " << calls <<" bounding strategy 2 exe:" << b2 << "\n";
     return 0;
 }
 
