@@ -565,8 +565,12 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
     auto NeighbourList = G[v];
 
     //should be replaced with bucket sort
-    std::sort(NeighbourList.begin(), NeighbourList.end(), [](int v1, int v2) {return DDMS.domination_degree(v1) < DDMS.domination_degree(v2);});
-   
+
+    //descending
+    std::sort(NeighbourList.begin(), NeighbourList.end(), [](int v1, int v2) {return DDMS.domination_degree(v1) > DDMS.domination_degree(v2);});
+    //ascending
+    //std::sort(NeighbourList.begin(), NeighbourList.end(), [](int v1, int v2) {return DDMS.domination_degree(v1) < DDMS.domination_degree(v2); });
+    
 
     std::stack<int> F;
     for (auto v_j : NeighbourList)
@@ -588,9 +592,9 @@ static void find_dominating_set(std::vector<std::vector<int>>& G, std::vector<bo
 }
 
 int main() {
-    int n = 3; int delta = 4 * n - 3;
+    int n = 10; int delta = 4 * n - 3;
     auto G = queen_graph_adj_lst(n);
-    int desired_size = G.size();
+    int desired_size = 5;// G.size();
 
     auto C = std::vector<bool>(G.size(),true);
     auto P = std::vector<bool>(G.size(), false);
