@@ -1,0 +1,1 @@
+g++ -o qdom qdom.cpp libcadical.a && qdom
