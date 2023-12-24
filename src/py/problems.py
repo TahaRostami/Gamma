@@ -30,4 +30,6 @@ def queen_dom_to_SAT(n,gamma,enc_type=EncType.seqcounter):
         clauses.append(N)
 
     clauses += CardEnc.equals(lits=V, top_id=top_id, bound=gamma, encoding=enc_type).clauses
+    #the above(old original enc) and below(new alternative enc) lines are both applicable
+    #clauses += CardEnc.atmost(lits=V, top_id=top_id, bound=gamma, encoding=enc_type).clauses
     return clauses

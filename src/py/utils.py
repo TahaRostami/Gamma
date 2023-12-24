@@ -185,3 +185,7 @@ class QueenDomVizTool:
         """
         self._update_attacked_squares()
         self._root.mainloop()
+
+
+if __name__=="__main__":
+    QueenDomVizTool(n=12).show()
