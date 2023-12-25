@@ -76,7 +76,7 @@ def main():
     files = [os.path.join(input_dir, item) for item in os.listdir(input_dir)]
     configurations = []
     for config in get_configs():
-        if len(configurations) >= n_max_trials:
+        if n_max_trials>=0 and len(configurations) >= n_max_trials:
             break
         configurations.append(config)
 
