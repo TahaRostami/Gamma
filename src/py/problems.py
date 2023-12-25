@@ -31,5 +31,6 @@ def queen_dom_to_SAT(n,gamma,enc_type=EncType.seqcounter):
 
     clauses += CardEnc.equals(lits=V, top_id=top_id, bound=gamma, encoding=enc_type).clauses
     #the above(old original enc) and below(new alternative enc) lines are both applicable
+    #it is worth mentioning, up to this point, according to my experiments, there is no significant performance difference between these two lines!
     #clauses += CardEnc.atmost(lits=V, top_id=top_id, bound=gamma, encoding=enc_type).clauses
     return clauses
