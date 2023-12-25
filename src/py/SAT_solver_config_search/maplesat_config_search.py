@@ -3,7 +3,7 @@ import argparse
 import os
 import subprocess
 import multiprocessing
-
+from subprocess import TimeoutExpired
 
 def generate_combinations_recursive(settings, current=[]):
     if not settings:
@@ -42,18 +42,29 @@ def get_configs():
 
 def execute_trial(args):
     """Execute a C++ program with the given configuration and file."""
-    idx, base_cmd, config, file, output_dir = args
+    idx, base_cmd, config, file, output_dir,timeout_duration = args
 
     command = f"{base_cmd} {config} {file}"
     output_file = os.path.join(output_dir, f"output_{idx}.txt")
 
-    # Redirect stdout and stderr to the output file
-    with open(output_file, 'w') as outfile:
-        outfile.write(f"id: {idx}\n")
-        outfile.write(f"File: {file}\n")
-        outfile.write(f"Config: {config}\n")
+    try:
+        # Redirect stdout and stderr to the output file
+        with open(output_file, 'w') as outfile:
+            outfile.write(f"id: {idx}\n")
+            outfile.write(f"File: {file}\n")
+            outfile.write(f"Config: {config}\n")
 
-        subprocess.run(command, shell=True, stdout=outfile, stderr=outfile)
+            if timeout_duration>0:
+               subprocess.run(command, shell=True, stdout=outfile, stderr=outfile, timeout=timeout_duration)
+            else:
+               subprocess.run(command, shell=True, stdout=outfile, stderr=outfile)
+
+    except TimeoutExpired:
+        with open(output_file, 'w') as outfile:
+            outfile.write(f"id: {idx}\n")
+            outfile.write(f"File: {file}\n")
+            outfile.write(f"Config: {config}\n")
+            outfile.write("Execution timed out!\n")
 
 
 def main():
@@ -61,14 +72,15 @@ def main():
     parser.add_argument('--cmd_base', required=False, default="./maplesat", type=str, help='base command to execute')
     parser.add_argument('--dir', required=True, type=str, help='directory in which input_files and output_files exist')
     parser.add_argument('--n_max_trials', required=False, default=10, type=int, help='maximum number of trials')
-    parser.add_argument('--n_cores', required=False, default=-1, type=int,
-                        help='number of processes to be executed in parallel')
+    parser.add_argument('--n_cores', required=False, default=-1, type=int, help='number of processes to be executed in parallel')
+    parser.add_argument('--timeout', required=False, default=-1, type=int, help='approximated timeout (in seconds)')
     args = parser.parse_args()
 
     base_cmd = args.cmd_base
     directory_path = args.dir
     num_processes = multiprocessing.cpu_count() if args.n_cores <= 0 else args.n_cores
     n_max_trials = args.n_max_trials
+    timeout_duration=args.timeout
 
     input_dir = directory_path + "input_files/"
     output_dir = directory_path + "output_files/"
@@ -87,7 +99,7 @@ def main():
     for file in files:
         for config in configurations:
             idx += 1
-            args_list.append((idx, base_cmd, config, file, output_dir))
+            args_list.append((idx, base_cmd, config, file, output_dir,timeout_duration))
 
     with multiprocessing.Pool(processes=num_processes) as pool:
         pool.map(execute_trial, args_list)
