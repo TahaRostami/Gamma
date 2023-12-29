@@ -18,7 +18,9 @@ examples:
 
 python3 maplesat_config_search.py --help
 
-python3 maplesat_config_search.py -cmd_base='./maplesat' --dir='/media/sf_shared/' -n_max_trials=10
+python3 maplesat_config_search.py --cmd_base='./maplesat' --dir='/media/sf_shared/' --n_max_trials=10
 
 python3 maplesat_config_search.py --dir='/media/sf_shared/' --n_cores=2
+
+python maplesat_config_search.py --dir='' --n_max_trials=3 --n_cores=2
 
