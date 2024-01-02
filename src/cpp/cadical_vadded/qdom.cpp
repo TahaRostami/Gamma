@@ -339,13 +339,15 @@ public:
             std::vector<int> clause;
             for (int i = 0; i < n * n; i++)
             {
-                if (solver->value(i + 1) > 0)
-                {
-                    clause.push_back(-(i + 1));
-                }
-                else if (solver->value(i + 1) < 0)
-                {
-                    clause.push_back((i + 1));
+                if (solver->is_decision(i + 1)) {
+                    if (solver->value(i + 1) > 0)
+                    {
+                        clause.push_back(-(i + 1));
+                    }
+                    else if (solver->value(i + 1) < 0)
+                    {
+                        clause.push_back((i + 1));
+                    }
                 }
             }
             new_clauses.push_back(clause);
