@@ -3,6 +3,7 @@ from problems import *
 from utils import *
 import datetime
 
+
 def exp_1(n,gamma,sat_solver='maplesat',plot=False,verbose=True):
     """
     >>> exp_1(3,1,plot=False,verbose=False)
