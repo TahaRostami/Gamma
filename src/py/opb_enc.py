@@ -4,6 +4,10 @@
 Encodes minimum queen domination set problem of size n, and gamma(optional)
 to saves it into a .opb format, so can be feed to pseudo-Boolean solvers
 
+
+Checkout
+Input/Output Format and Solver Requirements for the Competitions of Pseudo-Boolean,
+ by Solvers Olivier ROUSSEL, and Vasco MANQUINHO  for the format spec.
 """
 
 def get_queen_graph(n):
