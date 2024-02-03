@@ -1,6 +1,6 @@
 # Gamma
 
-All optimal solutions for 7<=n<=15 are generated.
+All optimal solutions for 7<=n<=18 are generated.
 
 These solutions are not up to isomorphism, but they simply include all solutions. Thus, isomorphism rejection should be done as a post processing step if one wishes to count the number of solutions up to isomorphism.
 
