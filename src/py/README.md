@@ -1,6 +1,8 @@
 
 **utils.py**: utilities, e.g., for drawing a graphical chessboard, etc. that others might use them.
 
+**viz_all.py**: it visualises, the test case related generate_all
+
 **problems.py**: for encoding a given problem, currently, only queen domination problem into SAT
 
 **experiments.py**: for conducting an experiment, e.g., executing and comparing different solvers, and encoding methods.
