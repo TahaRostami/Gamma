@@ -1,4 +1,4 @@
-
+import argparse
 """
 
 Encodes minimum queen domination set problem of size n, and gamma(optional)
@@ -33,8 +33,14 @@ def get_queen_graph(n):
 
 
 if __name__ == "__main__":
-    n = 12
-    gamma=6
+
+    parser = argparse.ArgumentParser(description="Hi!")
+    parser.add_argument("--n", type=int, required=True)
+    parser.add_argument("--gamma", type=int, default=None)
+    args = parser.parse_args()
+
+    n = args.n
+    gamma=args.gamma
     G = get_queen_graph(n)
 
     with open("E:\\shared\\opb\\q.opb", "w") as f:
