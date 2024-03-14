@@ -43,7 +43,7 @@ if __name__ == "__main__":
     gamma=args.gamma
     G = get_queen_graph(n)
 
-    with open("E:\\shared\\opb\\q.opb", "w") as f:
+    with open(f"n_{n}_gamma_{gamma}.opb", "w") as f:
         # Variable declarations
         f.write(f"* #variable= {n*n}\n")
 
