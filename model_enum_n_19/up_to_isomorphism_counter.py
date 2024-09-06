@@ -105,6 +105,52 @@ def count_up_to_iso(n,models):
             unique_models.append(m)
     return unique_models
 
+def count_up_to_iso_v2(n, models):
+    """
+    This is a hardcoded but optimized procedure for counting unique models up to isomorphism.
+    It uses canonical forms of models based on chessboard symmetries to efficiently deduplicate them.
+    """
+
+    def canonical_form(model, n):
+        """
+        Returns the canonical (lexicographically smallest) representation of the model
+        by applying all 8 symmetries and choosing the smallest one.
+        """
+
+        def position_to_int(row, col):
+            """Converts (row, col) coordinates to integer position on the board."""
+            return row * n + col
+
+        def apply_symmetry(pos, transformation):
+            i, j = divmod(pos, n)
+            return transformation(i, j)
+
+        transformations = [
+            lambda i, j: (i, j),
+            lambda i, j: (j, n - 1 - i),
+            lambda i, j: (n - 1 - i, n - 1 - j),
+            lambda i, j: (n - 1 - j, i),
+            lambda i, j: (i, n - 1 - j),
+            lambda i, j: (n - 1 - i, j),
+            lambda i, j: (j, i),
+            lambda i, j: (n - 1 - j, n - 1 - i)
+        ]
+
+        # Generate all transformations of the model and choose the lexicographically smallest
+        canonical_representations = []
+        for transformation in transformations:
+            transformed_model = sorted(position_to_int(*apply_symmetry(pos - 1, transformation)) + 1 for pos in model)
+            canonical_representations.append(tuple(transformed_model))
+
+        return min(canonical_representations)
+
+    unique_canonical_models = set()
+    for model in models:
+        canonical_model = canonical_form(model, n)
+        unique_canonical_models.add(canonical_model)
+
+    return unique_canonical_models
+
 """
 There are two data sources for checking isomorphism in model enumeration scenarios:
 
@@ -116,6 +162,15 @@ There are two data sources for checking isomorphism in model enumeration scenari
 """
 
 source_ids=[1,2] # List of sources to process (1 for zip file, 2 for JSON file).
+
+"""
+There are two methods for counting up to isomorphism:
+
+- 'count_up_to_iso' is a slower, but carefully written method suitable for moderate, manageable sizes.
+- 'count_up_to_iso_v2' is an optimized version that uses canonical labeling, offering much faster performance.
+
+"""
+iso_count_method=[count_up_to_iso,count_up_to_iso_v2][1]
 
 # Loop through the two sources and process them.
 for source_id in source_ids:
@@ -141,12 +196,12 @@ for source_id in source_ids:
                             result = set([item + 1 for x, item in enumerate(result) if x > 0])
                             models.append(result)
 
-            print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(count_up_to_iso(n,models))}")
+            print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n,models))}")
     elif source_id==2:
         n,gamma = 19,10
         with open('n_19_gamma_10_stat_results.json','r') as json_file:
             models = [set(model) for model in json.load(json_file)['models']]
-        print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(count_up_to_iso(n,models))}")
+        print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n,models))}")
 
     print('\n'+'-'*50+'\n')
 
@@ -173,7 +228,7 @@ Results Comparison: Counting Solutions up to Isomorphism
             12  6           1               1
             13  7           41              41
             14  8           588             588
-            15  9          STOPPED          25872
+            15  9          25872          25872
             --------------------------------------------
             16  9           371             43
             17  9           22              22
@@ -188,10 +243,7 @@ Important Notes
 
     The results for cases where 4≤n≤15 have been solved and verified by multiple works, leading to high confidence in 
     the correctness of those results. For this reason, they serve as a basis for testing and validating our code. I 
-    tested my implementation against these known values for  4≤n≤14, and the results are consistent.
-
-    For n=15, my current sequential algorithm took many hours to complete, so I stopped the process before finishing
-    the count. However, all the found solutions are stored, and third-party validation can be done independently.
+    tested my implementation against these known values for  4≤n≤15, and the results are consistent.
 
 
 2. Discrepancy for N = 16:
