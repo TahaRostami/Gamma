@@ -1,0 +1,51 @@
+c down fraction = 0.020 and down exponent = 0.300
+c cubes are emitted to cubes/n_10_gamma_4_encAtMost_seqcounter_encAtLeast_seqcounter.icnf
+c the DIMACS p-line indicates a CNF of 868 variables and 1636 clauses.
+c equivalence reasoning is turned off.
+c clause-length heuristic with magic constants: bin = 25.00 and dec = 0.50
+c init_lookahead: longest clause has size 36
+c number of free variables = 868
+c highest active variable  = 868
+c dynamic_preselect_setsize :: off
+c |****************************************************************|
+c
+c main():: nodeCount: 0
+c main():: dead ends in main: 0
+c main():: lookAheadCount: 49782
+c main():: unitResolveCount: 4497
+c time = 0.05 seconds
+c main():: necessary_assignments: 461
+c print learnt clauses and cubes
+c number of cubes 30, including 10 refuted leaves
+c average weight cubes 437.500, average weights leaves 260.500
+
+a 155 308 224 -204 0
+a 155 308 224 204 0
+a 155 308 -224 248 0
+a 155 308 -224 -248 0
+a 155 -308 -372 -460 472 0
+a 155 -308 -372 -460 -472 -476 -480 0
+a 155 -308 -372 -460 -472 -476 480 0
+a 155 -308 -372 -460 -472 476 0
+a 155 -308 -372 460 0
+a 155 -308 372 0
+a -155 154 -319 -399 -443 5 0
+a -155 154 -319 -399 -443 -5 -459 0
+a -155 154 -319 -399 -443 -5 459 0
+a -155 154 -319 -399 443 -452 0
+a -155 154 -319 -399 443 452 0
+a -155 154 -319 399 416 0
+a -155 154 -319 399 -416 0
+a -155 154 319 -364 227 0
+a -155 154 319 -364 -227 0
+a -155 154 319 364 0
+a -155 -154 153 -322 0
+a -155 -154 153 322 -387 -250 0
+a -155 -154 153 322 -387 250 0
+a -155 -154 153 322 387 388 0
+a -155 -154 153 322 387 -388 0
+a -155 -154 -153 191 0
+a -155 -154 -153 -191 190 0
+a -155 -154 -153 -191 -190 189 0
+a -155 -154 -153 -191 -190 -189 211 0
+a -155 -154 -153 -191 -190 -189 -211 0
