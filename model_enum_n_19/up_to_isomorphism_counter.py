@@ -275,8 +275,8 @@ for source_id in source_ids:
                             result = set([item + 1 for x, item in enumerate(result) if x > 0])
                             models.append(result)
 
-            if all_models_have_the_same_size(models)==False:
-                raise Exception(f"Error: Some models must have a same size.")
+            if check_all_models_have_same_size and all_models_have_the_same_size(models)==False:
+                raise Exception(f"Error: All models must have the same size.")
 
             if check_all_models_are_dom_set and all_models_are_dom_set(models,n)==False:
                 raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
@@ -290,8 +290,8 @@ for source_id in source_ids:
         with open('n_19_gamma_10_stat_results.json', 'r') as json_file:
             models = [set(model) for model in json.load(json_file)['models']]
 
-        if all_models_have_the_same_size(models) == False:
-            raise Exception(f"Error: Some models must have a same size.")
+        if check_all_models_have_same_size and all_models_have_the_same_size(models) == False:
+            raise Exception(f"Error: All models must have the same size.")
         if check_all_models_are_dom_set and all_models_are_dom_set(models, n) == False:
             raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
 
