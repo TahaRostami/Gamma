@@ -6,6 +6,9 @@ this script counts the number of unique models up to isomorphism.
 import zipfile
 import json
 
+
+
+
 def convert_to_int_if_possible(lst):
     """
     Converts a list of strings to integers if possible.
@@ -17,6 +20,53 @@ def convert_to_int_if_possible(lst):
         return converted_list if converted_list else None
     except ValueError:
         return None
+
+def all_models_are_dom_set(models,n):
+    """
+    Checks if all models are dominating sets on an n x n chessboard.
+
+    :param models: List of models (sets of positions).
+    :param n: The size of the chessboard (n x n).
+    :return: True if all models are dominating sets, otherwise False.
+    """
+    def get_queen_dom_graph(n):
+        """
+        Returns the graph representation of the queen domination problem on an n x n chessboard.
+
+        :param n: The size of the chessboard (nxn).
+        :return: A dictionary representing the graph, where each vertex corresponds to a square on the board,
+                 and the edges represent the squares a queen on that vertex can dominate.
+        """
+        G = {}
+        # To ensure compatibility with SAT solvers, indices start from 1 and end at n^2.
+        V = [i + 1 for i in range(n * n)]
+        for i in range(len(V)):
+            N = [V[i]]
+            r, c = i // n, i % n
+            # Add all squares in the same row.
+            N += V[r * n:r * n + n]
+            # Add all squares in the same column.
+            N += V[c::n]
+            # Add all squares in the same diagonal (from top left to bottom right).
+            N += [V[j] for j in range(len(V)) if r - c == ((j // n) - (j % n))]
+            # Add all squares in the same diagonal (from top right to bottom left).
+            N += [V[j] for j in range(len(V)) if r + c == ((j // n) + (j % n))]
+            N = set(N)
+            G[V[i]] = N
+        return G
+    def is_dom_set(P,all_vertices):
+        """
+        Checks if a given set of vertices forms a domination set.
+        """
+        return set().union(*[G[partial_sol] for partial_sol in P]) == all_vertices
+    G = get_queen_dom_graph(n)
+    all_vertices = set(G.keys())
+    ret=True
+    for m in models:
+        if is_dom_set(m,all_vertices)==False:
+            ret=False
+            break
+    return ret
 
 def check_iso(model1, model2, n):
     """
@@ -34,58 +84,59 @@ def check_iso(model1, model2, n):
 
     # Define transformation functions for the symmetries of the chessboard.
     def identity(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(i, j)
 
     def rotate_90(pos):
-        i,j=divmod(pos,n)
-        return position_to_int(n-1-j, i)
+        i, j = divmod(pos, n)
+        return position_to_int(n - 1 - j, i)
 
     def rotate_180(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(n - 1 - i, n - 1 - j)
 
     def rotate_270(pos):
-        i,j=divmod(pos,n)
-        return position_to_int(j, n-1-i)
+        i, j = divmod(pos, n)
+        return position_to_int(j, n - 1 - i)
 
     def reflect_horizontally(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(i, n - 1 - j)
 
     def reflect_vertically(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(n - 1 - i, j)
 
     def reflect_main_diagonal(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(j, i)
 
     def reflect_anti_diagonal(pos):
-        i,j=divmod(pos,n)
+        i, j = divmod(pos, n)
         return position_to_int(n - 1 - j, n - 1 - i)
 
     # Transformations are implemented according to the specifications outlined in reference [1]
     # and use 0-based indexing.
     transformations = [identity, rotate_90, rotate_180, rotate_270,
-        reflect_horizontally, reflect_vertically,
-        reflect_main_diagonal, reflect_anti_diagonal]
+                       reflect_horizontally, reflect_vertically,
+                       reflect_main_diagonal, reflect_anti_diagonal]
 
     # Check if model1 is isomorphic to model2 under any of the 8 transformations.
     for transformation in transformations:
         # Transformations functions use 0-based indexing, but the model is 1-based indexing.
         # Therefore, we adjust the indices before applying the transformation.
-        transformed_model1 = set(transformation(m-1)+1 for m in model1)
+        transformed_model1 = set(transformation(m - 1) + 1 for m in model1)
         # For debugging purposes
-        #print(model1,transformed_model1)
+        # print(model1,transformed_model1)
         if transformed_model1 == model2:
             return True
     # For debugging purposes
-    #print('-'*50)
+    # print('-'*50)
 
     return False
 
-def count_up_to_iso(n,models):
+
+def count_up_to_iso(n, models):
     """
     Counts the number of unique models up to isomorphism.
 
@@ -104,6 +155,7 @@ def count_up_to_iso(n,models):
         if to_be_added:
             unique_models.append(m)
     return unique_models
+
 
 def count_up_to_iso_v2(n, models):
     """
@@ -151,6 +203,7 @@ def count_up_to_iso_v2(n, models):
 
     return unique_canonical_models
 
+
 """
 There are two data sources for checking isomorphism in model enumeration scenarios:
 
@@ -161,7 +214,7 @@ There are two data sources for checking isomorphism in model enumeration scenari
    Both sources have slight differences in format, as shown below.
 """
 
-source_ids=[1,2] # List of sources to process (1 for zip file, 2 for JSON file).
+source_ids = [1,2]  # List of sources to process (1 for zip file, 2 for JSON file).
 
 """
 There are two methods for counting up to isomorphism:
@@ -170,16 +223,22 @@ There are two methods for counting up to isomorphism:
 - 'count_up_to_iso_v2' is an optimized version that uses canonical labeling, offering much faster performance.
 
 """
-iso_count_method=[count_up_to_iso,count_up_to_iso_v2][1]
+iso_count_method = [count_up_to_iso, count_up_to_iso_v2][1]
+
+
+"""
+Specify if you want to verify that all provided models form valid domination sets.
+"""
+check_all_models_are_dom_set=[True,False][0]
 
 # Loop through the two sources and process them.
 for source_id in source_ids:
     print(f'Source ID:{source_id}')
-    if source_id==1:
+    if source_id == 1:
         # Reading the models from the zip file
         zip_file_path = '../experiments/exp4_unidom_bug/generate_all_v2.zip'
         for n, gamma in [(4, 2), (5, 3), (6, 3), (7, 4), (8, 5), (9, 5), (10, 5), (11, 5), (12, 6), (13, 7), (14, 8),
-                         (15, 9), (16, 9), (17, 9), (18, 9), (19, 10)]:
+                         (15, 9), (16, 9),(17,9),(18,9),(19,10)]:
             file_to_read = f'generate_all_v2/all_{n}_{gamma}.txt'
 
             models = []
@@ -196,18 +255,22 @@ for source_id in source_ids:
                             result = set([item + 1 for x, item in enumerate(result) if x > 0])
                             models.append(result)
 
-            print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n,models))}")
-    elif source_id==2:
-        n,gamma = 19,10
-        with open('n_19_gamma_10_stat_results.json','r') as json_file:
+            if check_all_models_are_dom_set and all_models_are_dom_set(models,n)==False:
+                raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
+
+            print(
+                f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n, models))}")
+    elif source_id == 2:
+        n, gamma = 19, 10
+        with open('n_19_gamma_10_stat_results.json', 'r') as json_file:
             models = [set(model) for model in json.load(json_file)['models']]
-        print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n,models))}")
 
-    print('\n'+'-'*50+'\n')
+        if check_all_models_are_dom_set and all_models_are_dom_set(models, n) == False:
+            raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
 
+        print(f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n, models))}")
 
-
-
+    print('\n' + '-' * 50 + '\n')
 
 """
 
@@ -255,15 +318,14 @@ Important Notes
     difference. However, I hypothesize that the issue may stem from a bug in the tool "Unidom" used by the previous 
     work. Our testing has revealed bugs in Unidom's model enumeration process, which could explain the lower count 
     in [2].
-    
+
     While this discrepancy is interesting, solving n=16 is not the primary focus of our current work, but it still
     provides insight into potential issues in prior research.
-    
+
 3. N = 19 Solved:
     The open case n=19 with γ=10 has been solved in this work, with this code reporting 11 solutions. This result is
     new and has not been reported by previous work.
 """
-
 
 """
 References:
