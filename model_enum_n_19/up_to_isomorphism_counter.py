@@ -68,6 +68,19 @@ def all_models_are_dom_set(models,n):
             break
     return ret
 
+def all_models_have_the_same_size(models):
+    """
+    Verifies if all models have the same size.
+
+    :param models: List of models.
+    :return: True if all models have the same size, False otherwise.
+    """
+    l1=len(models[0])
+    for i in range(1,len(models)):
+        if len(models[i])!=l1:
+            return False
+    return True
+
 def check_iso(model1, model2, n):
     """
     Checks if two models are isomorphic by applying the 8 symmetries of the chessboard.
@@ -231,12 +244,19 @@ Specify if you want to verify that all provided models form valid domination set
 """
 check_all_models_are_dom_set=[True,False][0]
 
+"""
+Specify whether to check if all provided models are of equal length.
+"""
+check_all_models_have_same_size = [True, False][0]
+
+
 # Loop through the two sources and process them.
 for source_id in source_ids:
     print(f'Source ID:{source_id}')
     if source_id == 1:
         # Reading the models from the zip file
         zip_file_path = '../experiments/exp4_unidom_bug/generate_all_v2.zip'
+
         for n, gamma in [(4, 2), (5, 3), (6, 3), (7, 4), (8, 5), (9, 5), (10, 5), (11, 5), (12, 6), (13, 7), (14, 8),
                          (15, 9), (16, 9),(17,9),(18,9),(19,10)]:
             file_to_read = f'generate_all_v2/all_{n}_{gamma}.txt'
@@ -255,16 +275,23 @@ for source_id in source_ids:
                             result = set([item + 1 for x, item in enumerate(result) if x > 0])
                             models.append(result)
 
+            if all_models_have_the_same_size(models)==False:
+                raise Exception(f"Error: Some models must have a same size.")
+
             if check_all_models_are_dom_set and all_models_are_dom_set(models,n)==False:
                 raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
+
 
             print(
                 f"Counting Solutions up to Isomorphism for n={n} and gamma={gamma}: {len(iso_count_method(n, models))}")
     elif source_id == 2:
         n, gamma = 19, 10
+
         with open('n_19_gamma_10_stat_results.json', 'r') as json_file:
             models = [set(model) for model in json.load(json_file)['models']]
 
+        if all_models_have_the_same_size(models) == False:
+            raise Exception(f"Error: Some models must have a same size.")
         if check_all_models_are_dom_set and all_models_are_dom_set(models, n) == False:
             raise Exception(f"Error: Some models for n={n} are not valid domination sets.")
 
@@ -333,4 +360,3 @@ References:
      Combinatorics, pp.145-160, 1997.
 [2] - W.H. Bird, "Computational methods for domination problems," Doctoral dissertation, 2017.
 """
-
