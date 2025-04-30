@@ -1,0 +1,57 @@
+Best found: mtotalizer
+I tried it when n-gamma empty rows/cols are enabled and once when disabled. 
+
+cadical195, n=14,gamma=7, UNSAT, equal n*n-gamma empty sq, equal  gamma queens sq,occurence ordering, mtotalizer: 3092 seconds
+
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,occurence ordering, mtotalizer: 2950 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,occurence ordering, converted to 3 cnf, mtotalizer: 2628 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,blocking 3 ordering sort within block, mtotalizer: 770 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,blocking 3 sorting by max dom deg ordering + sort within block, mtotalizer: 837 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,blocking 3 sorting by max dom deg ordering, mtotalizer: 960 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,blocking 3 sorting by avg dom deg ordering, mtotalizer: 1547 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,blocking 3 ordering, mtotalizer: 1635 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq, with at least n-gamma row/cols empty, occurence ordering, mtotalizer: 2878 seconds
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq, with at least n-gamma row/cols empty, occurence ordering, converted to 3 cnf, mtotalizer: 2947 seconds
+
+problem now is with CnC:
+cadical195, n=14,gamma=7, UNSAT, at least n*n-gamma empty sq,occurence ordering, mtotalizer, CnC: 8300 (sure at least 8300 but not missed my note and I am not quite sure remember exact number) seconds
+SymBreak did not have positive impact but negative in terms of running time
+---
+
+Literal Ordering:
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, natural ordering, kmtotalizer:  1559 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, natural ordering, seqcounter: 1271 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, natural ordering, sortnetwrk: 344 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, natural ordering, cardnetwrk: 248 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, natural ordering, mtotalizer: 174 seconds
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, occurence ordering,  kmtotalizer: 603 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, occurence ordering, seqcounter:  472 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, occurence ordering,  sortnetwrk:  93 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, occurence ordering,   cardnetwrk:  73 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, occurence ordering,  mtotalizer:  59 seconds
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, proximity ordering,  kmtotalizer:  506 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, proximity ordering, seqcounter:  337 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, proximity ordering,  sortnetwrk:  92 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, proximity ordering,   cardnetwrk:  198 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, proximity ordering,  mtotalizer: 63 seconds
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO ordering,  kmtotalizer:  439 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO ordering, seqcounter:   335 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO ordering,  sortnetwrk:   159 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO ordering,   cardnetwrk:   193 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO ordering,  mtotalizer: 112 seconds
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO+Occur ordering,  kmtotalizer: 290  seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO+Occur ordering, seqcounter:   186 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO+Occur ordering,  sortnetwrk:   90 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO+Occur ordering,   cardnetwrk:   110 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, PAMO+Occur ordering,  mtotalizer: 104 seconds
+
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, graph ordering,  kmtotalizer:  1629 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, graph ordering, seqcounter:   1301 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, graph ordering,  sortnetwrk:   338 seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, graph ordering,   cardnetwrk: 246  seconds
+cadical195, n=13,gamma=6, UNSAT, at least n*n-gamma empty sq, graph ordering,  mtotalizer: 295 seconds
