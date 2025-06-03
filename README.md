@@ -1,6 +1,6 @@
 ## Start Without Knowing Any Details?
 
-I solved and verified `qdom_enum_formula/16_9_HILBERT_MEnum.cnf` using `CaDiCaL` and `lrat-trim`, by generating 16 cubes with a custom script. The full process took less than 2 days of computation.
+I solved and verified `qdom_enum_formula/16_9_HILBERT_MEnum.cnf` using `CaDiCaL` and `lrat-trim`, by generating `16` cubes with a custom script. The full process took less than `2` days of computation.
 
 We would like to investigate whether **AlphaMapleSAT** can hopefully reduce the running time further.
 
