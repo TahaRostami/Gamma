@@ -33,7 +33,7 @@ options:
 ```
 ### Note
 
-SAT instances are trivial when `γ` is optimal value of `gamma`. To test method's performance, you can encode with `gamma = γ - 1`, where `γ` is the minimal dominating set size for a given `n x n` board. These become significantly harder and require exhaustive search.
+SAT instances are trivial when `γ` is optimal value of `gamma`. To test method's performance, you can encode with `gamma = γ - 1`, where `γ` is the optimal dominating set size for a given `n x n` board. These become significantly harder and require exhaustive search.
 
 ### Some Known Optimal Values
 
