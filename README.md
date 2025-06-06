@@ -48,7 +48,7 @@ In another setting, the goal is to count all non-isomorphic solutions:
 - Then, the number of non-isomorphic solutions was computed.
 The solutions and the isomorphism rejection logic are available in another branch (not required for this context).
 ### CNF Directory Structure
-CNFs for verifying Unidom’s results are available in the `qdom_enum_formula` directory for boards up to `n=16`.
+CNFs for verifying Unidom’s results are available in the `qdom_enum_formula` directory for boards up to `n=19`.
 - For `n = 12` to `n = 15`, two encoding variants are included for testing purposes.
 - The most important instances (used for cubing and further experiments) are those postfixed with `_HILBERT`. These files encode instances using the mtotalizer, with literals sorted according to the Hilbert curve.
 ### Performance Note
