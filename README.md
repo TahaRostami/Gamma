@@ -50,7 +50,7 @@ The solutions and the isomorphism rejection logic are available in another branc
 ### CNF Directory Structure
 CNFs for verifying Unidom’s results are available in the `qdom_enum_formula` directory for boards up to `n=16`.
 - For `n = 12` to `n = 15`, two encoding variants are included for testing purposes.
-- The most important instances (used for cubing and further experiments) are those postfixed with `_HILBERT`.
+- The most important instances (used for cubing and further experiments) are those postfixed with `_HILBERT`. These files encode instances using the mtotalizer, with literals sorted according to the Hilbert curve.
 ### Performance Note
 - Runtime increases with `n`, except for `n=16`, which runs much faster than `n=15`.
 - The CNF `16_9_HILBERT_MEnum.cnf` was solved and formally verified using `CaDiCaL` and `lrat-trim` with `16` cubes in under `2` days.
