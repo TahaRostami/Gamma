@@ -193,8 +193,8 @@ if __name__ == "__main__":
     # === Optional: Write CNF to File ===
     if args.write_dir:
         cnf_filename = f"{n}_{gamma}_{args.ordering.upper()}_{args.enc}.cnf"
-        enc.cnf.to_file(cnf_filename)
-        print(f"CNF written to: {cnf_filename}")
+        enc.cnf.to_file(args.write_dir + cnf_filename)
+        print(f"CNF written to: {args.write_dir + cnf_filename}")
 
     # === Optional: Solve using CaDiCaL ===
     solving_time = None
