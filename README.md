@@ -47,7 +47,8 @@ options:
   --input_filename INPUT_FILENAME
                         Path to the input CNF file
   --output_filename OUTPUT_FILENAME
-                        Path to the output CNF file where the updated formula with symmetry breaking will be saved.
+                        Path to the output CNF file where the updated formula with symmetry breaking
+                        will be saved.
 ```
 ### Note
 
