@@ -31,6 +31,24 @@ options:
                         Directory path to write the CNF file (writing enabled only if specified)
   --solve               Solve the encoded CNF using CaDiCaL and report timing
 ```
+
+
+You can also add symmetry breaking cluases to CNF formula using `AddSymBreak.py`. Example usage:
+```
+python3 AddSymBreak.py --help
+
+usage: AddSymBreak.py [-h] --n N --input_filename INPUT_FILENAME --output_filename OUTPUT_FILENAME
+
+Add symmetry-breaking clauses to a CNF formula encoding the Queen Domination (QDOM) problem.
+
+options:
+  -h, --help            show this help message and exit
+  --n N                 Board size (n x n)
+  --input_filename INPUT_FILENAME
+                        Path to the input CNF file
+  --output_filename OUTPUT_FILENAME
+                        Path to the output CNF file where the updated formula with symmetry breaking will be saved.
+```
 ### Note
 
 SAT instances are trivial when `γ` is optimal value of `gamma`. To test method's performance, you can encode with `gamma = γ - 1`, where `γ` is the optimal dominating set size for a given `n x n` board. These become significantly harder and require exhaustive search.
