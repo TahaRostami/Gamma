@@ -26,8 +26,6 @@ class QdomEncoder:
         self.cnf = CNF()
         self.Q = lambda i: self.vpool.id(f"Q@{i}")  # Q(i) is True if square i has a queen
         self.V=[self.Q(i) for i in range(self.N)]
-        for i in range(self.N):
-            self.Q(i)
         self.V_sorted=None
         self._encode_domination_constraints()
         self._encode_cardinality_constraints()
