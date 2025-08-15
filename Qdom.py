@@ -89,6 +89,9 @@ class QdomEncoder:
             sorted_indices = list(range(len(self.V)))
 
         self.V_sorted = [self.Q(i) for i in sorted_indices]
+
+        # Note: This "atleast" constraint on the negated variables is equivalent to an "atmost gamma queens" constraint.
+        # In other words, PySAT produces exactly the same formula as if we had encoded "at most γ queens" directly.
         self.cnf.extend(CardEnc.atleast(lits=[-v for v in self.V_sorted], vpool=self.vpool,
                                         bound=self.n * self.n - self.gamma, encoding=self.card_type))
 
@@ -222,6 +225,7 @@ if __name__ == "__main__":
     if solving_time is not None:
         print(f"Solving time: {solving_time:.2f} seconds")
     print(f"Total time: {total_time:.2f} seconds")
+
 
 
 
