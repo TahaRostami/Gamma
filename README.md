@@ -1,6 +1,6 @@
 # Improved SAT Encoding for the Queen Domination Problem
 
-`Qdom.py` encodes the queen domination problem and can generate both the CNF formula and cubes when requested.
+`Qdom.py` encodes the queen domination problem and can generate both the CNF formula and cubes when requested. For details on the SAT encoding, symmetry breaking constraints, and Cube-and-Conquer strategy, see `doc.pdf`.
 
 For usage details, run:
 
