@@ -44,19 +44,66 @@ After building these tools, place their binaries in the same directory as `Qdom.
 
 `seq_run.sh` calls `qdom_run.sh`.
 
-It first runs `qdom_run.sh` in `generate` mode to generate the formula and cubes, then iteratively calls it in `solve_and_verify` mode for each cube.
+It first runs `qdom_run.sh` in `generate` mode to generate the formula and cubes, then iteratively calls it in `solve_and_verify` mode for each cube sequentially.
+
+The script reports:
+
+- total generation time
+- per-cube solving time
+- total sequential wall-clock time
 
 ---
 
-# Example
+## par_run.sh
 
-The following example:
+`par_run.sh` is the parallel version of `seq_run.sh`.
 
-- generates a formula for `qdom` with `n=13` and `gamma=7`
-- creates `2^5` cubes
-- solves and verifies all cubes sequentially
-- writes the solutions for each cube into the `solutions/` directory
+It first calls `qdom_run.sh` in `generate` mode to generate the formula and cubes. Then it solves and verifies the cubes in parallel using the specified number of cores.
+
+The number of parallel workers is controlled by `--cores`.
+
+Each worker is assigned cubes according to:
+
+```text
+cube_id % cores == worker_id
+```
+
+For example, with `--cores 4`:
+
+```text
+worker 0 solves cubes 0, 4, 8, ...
+worker 1 solves cubes 1, 5, 9, ...
+worker 2 solves cubes 2, 6, 10, ...
+worker 3 solves cubes 3, 7, 11, ...
+```
+
+The script reports:
+
+- formula and cube generation time
+- parallel solve wall-clock time
+- total solving time summed over all workers
+- estimated sequential total time
+- actual total wall-clock time
+
+---
+
+# Examples
+
+Sequential run:
 
 ```bash
 ./seq_run.sh --n 13 --gamma 7 --cube-vars 5
 ```
+
+Parallel run using 4 cores:
+
+```bash
+./par_run.sh --n 13 --gamma 7 --cube-vars 5 --cores 4
+```
+
+The examples above:
+
+- generate a formula for `qdom` with `n=13` and `gamma=7`
+- create `2^5` cubes
+- solve and verify all cubes
+- write solutions for each cube into the `solutions/` directory
