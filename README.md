@@ -12,7 +12,7 @@ python Qdom.py --help
 
 In addition to improving the encoding, we also improve the solve-and-verify procedure.
 
-Previously, all solutions were enumerated first, then the solver was called once on the resulting UNSAT instance, and finally the proof was verified. We now use `cadical-exhaust`, which performs solving and proof generation incrementally during the solving process.
+Previously, all solutions were enumerated first, then the solver was called once on the resulting UNSAT instance, and finally the proof was verified. We now use `cadical-exhaust`, which performs solving and proof generation during the solving process.
 
 Please install:
 
