@@ -17,7 +17,7 @@ Previously, all solutions were enumerated first, then the solver was called once
 Please install:
 
 - `cadical-exhaust`: https://github.com/curtisbright/cadical-exhaust
-- `drat-trim-t`: https://github.com/curtisbright/drat-trim-t (optional, only needed for proof verification)
+- `drat-trim-t`: https://github.com/curtisbright/drat-trim-t
 
 After building these tools, place their binaries in the same directory as `Qdom.py`.
 
