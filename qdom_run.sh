@@ -15,6 +15,7 @@ CUBE_ID="${CUBE_ID:-0}"
 CADICAL_EXHAUST="${CADICAL_EXHAUST:-./cadical-exhaust}"
 DRAT_TRIM="${DRAT_TRIM:-./drat-trim-t}"
 SOL_DIR="${SOL_DIR:-solutions}"
+LOG_DIR="${LOG_DIR:-logs}"
 
 usage() {
   cat <<EOF
@@ -29,6 +30,7 @@ Environment overrides:
   CADICAL_EXHAUST=./cadical-exhaust
   DRAT_TRIM=./drat-trim-t
   SOL_DIR=solutions
+  LOG_DIR=logs
 EOF
 }
 
@@ -41,6 +43,7 @@ while [[ $# -gt 0 ]]; do
     --cube-vars) CUBE_VARS="$2"; shift 2 ;;
     --write-dir) WRITE_DIR="$2"; shift 2 ;;
     --cube-id) CUBE_ID="$2"; shift 2 ;;
+    --log-dir) LOG_DIR="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage; exit 1 ;;
   esac
@@ -86,12 +89,33 @@ case "$MODE" in
 
     TMP_CNF="$(mktemp --suffix=".cnf")"
     TMP_PROOF=""
+    RAW_LOG="$(mktemp --suffix=".raw.log")"
+
+    mkdir -p "$SOL_DIR"
+    mkdir -p "$LOG_DIR"
+
+    LOG_FILE="${LOG_DIR}/log_${N}_${GAMMA}_${CUBE_ID}_${MODE}.txt"
 
     cleanup() {
       rm -f "$TMP_CNF"
       [[ -n "$TMP_PROOF" ]] && rm -f "$TMP_PROOF"
+      rm -f "$RAW_LOG"
     }
-    trap cleanup EXIT
+
+    save_tail_log() {
+      if grep -q '^c --- \[ closing proof \]' "$RAW_LOG"; then
+        awk '
+          /^c --- \[ closing proof \]/ { keep = 1 }
+          keep { print }
+        ' "$RAW_LOG" > "$LOG_FILE"
+
+        echo "Saved closing-proof-to-end log to: $LOG_FILE" >&2
+      else
+        echo "No closing proof section found; no tail log written." >&2
+      fi
+    }
+
+    trap 'save_tail_log; cleanup' EXIT
 
     HEADER_DONE=0
 
@@ -111,56 +135,56 @@ case "$MODE" in
       echo "$lit 0" >> "$TMP_CNF"
     done
 
-    mkdir -p "$SOL_DIR"
-
     SOL_FILE="${SOL_DIR}/solutions_${N}_${GAMMA}_${CUBE_ID}.txt"
     ORDER=$((N * N))
 
-    echo "Solving cube_id=$CUBE_ID with ${#LITS[@]} assumptions as unit clauses" >&2
-    echo "Writing solutions to: $SOL_FILE" >&2
+    {
+      echo "Solving cube_id=$CUBE_ID with ${#LITS[@]} assumptions as unit clauses" >&2
+      echo "Writing solutions to: $SOL_FILE" >&2
 
-    if [[ "$MODE" == "solve_and_verify" ]]; then
-      TMP_PROOF="$(mktemp --suffix=".drat")"
+      if [[ "$MODE" == "solve_and_verify" ]]; then
+        TMP_PROOF="$(mktemp --suffix=".drat")"
 
-      echo "Writing temporary proof to: $TMP_PROOF" >&2
+        echo "Writing temporary proof to: $TMP_PROOF" >&2
 
-      set +e
-      "$CADICAL_EXHAUST" "$TMP_CNF" "$TMP_PROOF" \
-        --order "$ORDER" \
-        --only-neg \
-        --solfile "$SOL_FILE"
-      CADICAL_STATUS=$?
-      set -e
+        set +e
+        "$CADICAL_EXHAUST" "$TMP_CNF" "$TMP_PROOF" \
+          --order "$ORDER" \
+          --only-neg \
+          --solfile "$SOL_FILE"
+        CADICAL_STATUS=$?
+        set -e
 
-      echo "cadical-exhaust exit code: $CADICAL_STATUS" >&2
+        echo "cadical-exhaust exit code: $CADICAL_STATUS" >&2
 
-      if [[ "$CADICAL_STATUS" -ne 20 ]]; then
-        echo "Expected UNSAT exit code 20 before proof verification, got $CADICAL_STATUS" >&2
-        exit "$CADICAL_STATUS"
+        if [[ "$CADICAL_STATUS" -ne 20 ]]; then
+          echo "Expected UNSAT exit code 20 before proof verification, got $CADICAL_STATUS" >&2
+          exit "$CADICAL_STATUS"
+        fi
+
+        echo "Verifying proof with drat-trim-t..." >&2
+
+        set +e
+        "$DRAT_TRIM" "$TMP_CNF" "$TMP_PROOF"
+        DRAT_STATUS=$?
+        set -e
+
+        echo "drat-trim-t exit code: $DRAT_STATUS" >&2
+
+        if [[ "$DRAT_STATUS" -ne 0 ]]; then
+          echo "Proof verification failed." >&2
+          exit "$DRAT_STATUS"
+        fi
+
+        echo "Proof verification succeeded." >&2
+
+      else
+        "$CADICAL_EXHAUST" "$TMP_CNF" \
+          --order "$ORDER" \
+          --only-neg \
+          --solfile "$SOL_FILE"
       fi
-
-      echo "Verifying proof with drat-trim-t..." >&2
-
-      set +e
-      "$DRAT_TRIM" "$TMP_CNF" "$TMP_PROOF"
-      DRAT_STATUS=$?
-      set -e
-
-      echo "drat-trim-t exit code: $DRAT_STATUS" >&2
-
-      if [[ "$DRAT_STATUS" -ne 0 ]]; then
-        echo "Proof verification failed." >&2
-        exit "$DRAT_STATUS"
-      fi
-
-      echo "Proof verification succeeded." >&2
-
-    else
-      "$CADICAL_EXHAUST" "$TMP_CNF" \
-        --order "$ORDER" \
-        --only-neg \
-        --solfile "$SOL_FILE"
-    fi
+    } 2>&1 | tee "$RAW_LOG"
     ;;
 
   *)
