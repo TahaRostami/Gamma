@@ -105,3 +105,10 @@ The examples above:
 - create `2^5` cubes
 - solve and verify all cubes
 - write solutions for each cube into the `solutions/` directory
+
+## Results
+
+- **Model enumeration:** Using a CDCL SAT solver, faster model enumeration with verification for $n \leq 19$, correcting a discrepancy for $n=16$ and solving the previously open $n=19$ instance.
+
+- **Exact value for $Q_{26}$:** Using the same encoding but with Gurobi, we found $\gamma(Q_{26}) > 13$ and found a dominating set of size 14, establishing $\gamma(Q_{26}) = 14$ for the previously open case.
+
