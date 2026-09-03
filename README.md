@@ -2,6 +2,8 @@
 
 Efficient Encoding of the Queen Domination Problem into (Boolean satisfiability problem) SAT Using Hilbert Curve Ordering and Static Symmetry Breaking
 
+**Paper (v1):** [arXiv:2508.11945v1](https://arxiv.org/abs/2508.11945v1)
+
 ## Quick Start
 Given two positive integers `n` and `gamma`, the goal is to determine whether there exists a domination set of size `gamma` for the queen graph of a corresponding `nxn` chessboard.
 You can generate the corresponding (Conjunctive normal form) CNF formula using `Qdom.py`. Example usage:
