@@ -1,5 +1,7 @@
 # Improved SAT Encoding for the Queen Domination Problem
 
+**Paper (v2):** [arXiv:2508.11945v2](https://arxiv.org/abs/2508.11945v2)
+
 `Qdom.py` encodes the queen domination problem and can generate both the CNF formula and cubes when requested. For usage details, run:
 
 ```bash
