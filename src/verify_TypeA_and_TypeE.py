@@ -1,5 +1,5 @@
 # replace with desired file's path and name
-with open("q733_coords.txt", "r") as f:
+with open("../certificates/q1585_coords.txt", "r") as f:
     lines=f.read().split('\n')
 header, coordinates =lines[0].split(' '), [l.split(' ') for l in lines[1:-1]]
 coordinates = set([(int(c[0]),int(c[1])) for c in coordinates])
@@ -33,6 +33,19 @@ assert (not p_rows) and (not p_cols)
 
 occupied_s = {x + y for x, y in coordinates}
 occupied_d = {y - x for x, y in coordinates}
+
+# independent iff no two queens share a row, column, or diagonal
+# note that cols and rows are already checked (implicitly)
+# independent = (len({y for x, y in coordinates}) == d and len({x for x, y in coordinates}) == d
+#               and len(occupied_s) == d and len(occupied_d) == d)
+# or somewhat safer version
+# independent iff no two distinct queens attack each other
+independent = True
+for (x1, y1) in coordinates:
+    for (x2, y2) in coordinates:
+        if (x1, y1) != (x2, y2) and (x1 == x2 or y1 == y2
+                                     or x1 + y1 == x2 + y2 or y1 - x1 == y2 - x2):
+            independent = False
 
 # p-cover: squares whose row and column both have parity 1-p must be covered diagonally.
 not_diagonally_covered = {
@@ -87,6 +100,12 @@ print(f"According to W.D. Weakley's Theorem:")
 print(f"Type-A parameters: e={e}, f={f}, u={u}")
 print(f"Coefficient = ({d}+3)/({n}+2)")
 print(f"Coefficient = {coef_num}/{coef_den} = {coef:.12f}")
+
+# Weakley's Theorem also bounds i(Q_n) when D is independent: (d+6)/(n+2)
+if independent:
+    print(f"\nIndependent: {independent}")
+    print(f"Coefficient for i(Q_n) = ({d}+6)/({n}+2)")
+    print(f"Coefficient for i(Q_n) = {d+6}/{n+2} = {(d+6)/(n+2):.12f}")
 
 
 
