@@ -20,7 +20,7 @@ then run it:
 python3 src/verify_TypeA_and_TypeE.py
 ```
 
-It either raises an `AssertionError` at the first failed check, or prints the two asymptotic coefficients the configuration supports.
+It either raises an `AssertionError` at the first failed check, or prints the asymptotic coefficients the configuration supports.
 
 ## Search
 
