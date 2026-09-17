@@ -11,7 +11,7 @@ Verified certificates are available in the `certificates/` directory.
 Set the certificate path on the first line of the file:
 
 ```python
-with open("... path ... /q1585_coords.txt", "r") as f:
+with open("../certificates/q1585_coords.txt", "r") as f:
 ```
 
 then run it:
