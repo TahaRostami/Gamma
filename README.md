@@ -24,7 +24,7 @@ with an improved SAT encoding and parallel solve-and-verify pipeline.
 #### Computational constructions for improved upper bounds
 
 Computational artifacts for large queen-domination constructions, including
-certificates and independent verification tools.
+certificates, code and independent verification tools.
 
 ---
 
